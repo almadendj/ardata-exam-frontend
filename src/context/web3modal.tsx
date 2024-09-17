@@ -1,5 +1,4 @@
 'use client'
-
 import { createAppKit } from "@reown/appkit/react";
 import { EthersAdapter } from "@reown/appkit-adapter-ethers";
 import { mainnet, arbitrum } from "@reown/appkit/networks";
