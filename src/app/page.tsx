@@ -7,28 +7,27 @@ import { BrowserProvider, Eip1193Provider } from "ethers";
 import { Wallet } from "@/lib/Wallet";
 
 export default function Home() {
-  const { address, isConnected } = useAppKitAccount();
-  const { walletProvider, walletProviderType } = useAppKitProvider<Eip1193Provider>('eip155');
+  const { address } = useAppKitAccount();
+  const { walletProvider } = useAppKitProvider<Eip1193Provider>('eip155');
   const wallet = useMemo(() => {
-    if (!!walletProvider) {
+    if (!!walletProvider && !!address) {
       const ethersProvider = new BrowserProvider(walletProvider);
-      return new Wallet(ethersProvider);
+      return new Wallet(ethersProvider, address);
     }
 
     return null;
-  }, [walletProvider])
+  }, [walletProvider, address])
 
   const getBalance = useCallback(async () => {
     try {
       if (!wallet) throw Error("Wallet needs to be instantiated");
-      if (!isConnected || !address) throw Error("User not connected");
 
-      const balance = await wallet.getBalance(address);
+      const balance = await wallet.getBalance();
       console.log(`balance: ${balance} ETH`);
     } catch (e) {
       console.error("error fetching balance: ", e);
     }
-  }, [wallet, address, isConnected])
+  }, [wallet, address])
 
 
   return (

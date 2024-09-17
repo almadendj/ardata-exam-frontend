@@ -2,17 +2,18 @@ import { ethers, formatEther } from "ethers";
 
 export class Wallet {
   private provider: ethers.BrowserProvider;
+  private address: string;
 
-  constructor(provider: ethers.BrowserProvider) {
+  constructor(provider: ethers.BrowserProvider, address: string) {
     if (!provider) throw Error("No provider.");
-    this.provider = provider;
-  }
-
-  public async getBalance(address: string): Promise<string> {
     if (!address) throw Error("No address.");
 
-    console.log("fetching address for: ", address);
-    const balance = await this.provider.getBalance(address);
+    this.provider = provider;
+    this.address = address;
+  }
+
+  public async getBalance(): Promise<string> {
+    const balance = await this.provider.getBalance(this.address);
     return formatEther(balance);
   }
 }
