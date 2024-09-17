@@ -5,10 +5,12 @@ import { Fragment, useCallback, useMemo } from "react";
 import { useAppKitAccount, useAppKitProvider } from "@reown/appkit/react";
 import { BrowserProvider, Eip1193Provider } from "ethers";
 import { Wallet } from "@/lib/Wallet";
+import { TransactionResponse } from "@/types/common";
 
 export default function Home() {
   const { address } = useAppKitAccount();
   const { walletProvider } = useAppKitProvider<Eip1193Provider>('eip155');
+
   const wallet = useMemo(() => {
     if (!!walletProvider && !!address) {
       const ethersProvider = new BrowserProvider(walletProvider);
@@ -33,7 +35,8 @@ export default function Home() {
     try {
       if (!wallet) throw Error("Wallet needs to be instantiated");
 
-      console.log(await wallet.getTransactions());
+      const response: TransactionResponse = await wallet.getTransactions();
+      console.log(response.result);
     } catch (e) {
       console.error("error fecthing wallet transactions: ", e);
     }
