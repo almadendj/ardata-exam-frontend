@@ -1,7 +1,7 @@
 'use client'
 
 import { Button } from "@/components/ui/button";
-import { useCallback, useMemo } from "react";
+import { Fragment, useCallback, useMemo } from "react";
 import { useAppKitAccount, useAppKitProvider } from "@reown/appkit/react";
 import { BrowserProvider, Eip1193Provider } from "ethers";
 import { Wallet } from "@/lib/Wallet";
@@ -27,7 +27,17 @@ export default function Home() {
     } catch (e) {
       console.error("error fetching balance: ", e);
     }
-  }, [wallet, address])
+  }, [wallet])
+
+  const getTransactions = useCallback(async () => {
+    try {
+      if (!wallet) throw Error("Wallet needs to be instantiated");
+
+      console.log(await wallet.getTransactions());
+    } catch (e) {
+      console.error("error fecthing wallet transactions: ", e);
+    }
+  }, [wallet]);
 
 
   return (
@@ -35,7 +45,10 @@ export default function Home() {
       <main className="flex flex-col gap-8 row-start-2 items-center">
         <w3m-button />
         {!!wallet && (
-          <Button onClick={getBalance}>Get Balance</Button>
+          <Fragment>
+            <Button onClick={getBalance}>Get Balance</Button>
+            <Button onClick={getTransactions}>Get Transactions</Button>
+          </Fragment>
         )}
       </main>
     </div>
