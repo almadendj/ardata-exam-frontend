@@ -1,57 +1,55 @@
 'use client'
 
 import { Button } from "@/components/ui/button";
-import { Fragment, useCallback, useMemo } from "react";
-import { useAppKitAccount, useAppKitProvider } from "@reown/appkit/react";
-import { BrowserProvider, Eip1193Provider } from "ethers";
-import { Wallet } from "@/lib/Wallet";
-import { TransactionResponse } from "@/types/common";
+import { BrowserProvider, ethers } from "ethers";
+import { useCallback, useEffect, useState } from "react";
 
 export default function Home() {
-  const { address } = useAppKitAccount();
-  const { walletProvider } = useAppKitProvider<Eip1193Provider>('eip155');
+  const [wallet, setWallet] = useState<string | null>(null);
+  const [balance, setBalance] = useState<string | null>(null);
+  const [provider, setProvider] = useState<BrowserProvider | null>(null);
 
-  const wallet = useMemo(() => {
-    if (!!walletProvider && !!address) {
-      const ethersProvider = new BrowserProvider(walletProvider);
-      return new Wallet(ethersProvider, address);
+  useEffect(() => {
+    const initProvider = async () => {
+      if (typeof window.ethereum !== 'undefined') {
+        const browserProvider = new ethers.BrowserProvider(window.ethereum as any);
+        setProvider(browserProvider);
+      }
     }
 
-    return null;
-  }, [walletProvider, address])
+    initProvider();
+  }, []);
 
-  const getBalance = useCallback(async () => {
-    try {
-      if (!wallet) throw Error("Wallet needs to be instantiated");
+  const connectWallet = useCallback(async () => {
+    if (provider) {
+      try {
+        const accounts = await provider.send('eth_requestAccounts', []);
+        setWallet(accounts[0]);
 
-      const balance = await wallet.getBalance();
-      console.log(`balance: ${balance} ETH`);
-    } catch (e) {
-      console.error("error fetching balance: ", e);
+        const balance = await provider.getBalance(accounts[0]);
+        setBalance(ethers.formatEther(balance));
+      } catch (e) {
+        console.error("Failed to connect to wallet: ", e);
+      }
     }
-  }, [wallet])
-
-  const getTransactions = useCallback(async () => {
-    try {
-      if (!wallet) throw Error("Wallet needs to be instantiated");
-
-      const response: TransactionResponse = await wallet.getTransactions();
-      console.log(response.result);
-    } catch (e) {
-      console.error("error fecthing wallet transactions: ", e);
-    }
-  }, [wallet]);
-
+  }, [provider]);
 
   return (
     <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
       <main className="flex flex-col gap-8 row-start-2 items-center">
-        <w3m-button />
-        {!!wallet && (
-          <Fragment>
-            <Button onClick={getBalance}>Get Balance</Button>
-            <Button onClick={getTransactions}>Get Transactions</Button>
-          </Fragment>
+        {!wallet ? (
+          <Button onClick={connectWallet}>
+            Connect Wallet
+          </Button>
+        ) : (
+          <div className="flex flex-col gap-3">
+            <span>
+              Connected Wallet: {wallet}
+            </span>
+            <span>
+              Balance: {balance} ETH
+            </span>
+          </div>
         )}
       </main>
     </div>
