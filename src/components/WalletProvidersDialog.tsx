@@ -11,8 +11,7 @@ type DialogProps = {
 }
 
 export const WalletProvidersDialog = ({ open, setOpen }: DialogProps) => {
-  const { setSelectedWallet, setAddress } = useWallet();
-  const providers = useSyncProviders()
+  const { setSelectedWallet, setAddress, injectedProviders, handleConnectProvider } = useWallet();
 
   const handleConnect = useCallback(async (providerWithInfo: EIP6963ProviderDetail) => {
     try {
@@ -42,12 +41,18 @@ export const WalletProvidersDialog = ({ open, setOpen }: DialogProps) => {
         </DialogHeader>
         <div>
           {
-            providers.length > 0 ? providers?.map((provider: EIP6963ProviderDetail) => (
-              <Button className="w-full space-x-3 py-6" key={provider.info.uuid} onClick={() => handleConnect(provider)} >
+            injectedProviders.size > 0 ? Array.from(injectedProviders)?.map(([_, { info, provider }]) => (
+              <Button
+                className="w-full space-x-3 py-6"
+                key={info.uuid}
+                onClick={() =>
+                  handleConnectProvider({ info, provider })
+                    .then(() => setOpen(false))
+                } >
                 <div className="w-[30px] h-[30px] relative">
-                  <Image src={provider.info.icon} alt={provider.info.name} fill />
+                  <Image src={info.icon} alt={info.name} fill />
                 </div>
-                <span>{provider.info.name}</span>
+                <span>{info.name}</span>
               </Button>
             )) :
               <span className="font-bold">
