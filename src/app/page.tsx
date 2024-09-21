@@ -1,6 +1,6 @@
 'use client'
 
-import { DiscoverWalletProviders } from "@/components/DiscoverWalletProviders";
+import { WalletProvidersDialog } from "@/components/WalletProvidersDialog";
 import { Button } from "@/components/ui/button";
 import { useWallet } from "@/hooks/useWallet";
 import { contractABI, contractAddress } from "@/lib/contractInfo";
@@ -11,6 +11,7 @@ export default function Home() {
   const { address, setAddress } = useWallet();
   const [provider, setProvider] = useState<BrowserProvider | null>(null);
   const [mintPrice, setMintPrice] = useState<string | null>(null);
+  const [providersDialogOpen, setProvidersDialogOpen] = useState(false);
   const [ethBalance, setEthBalance] = useState<string | null>(null);
   const [tokenBalance, setTokenBalance] = useState<string | null>(null);
 
@@ -78,30 +79,13 @@ export default function Home() {
   return (
     <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
       <main className="flex flex-col gap-8 row-start-2 items-center">
-        <DiscoverWalletProviders />
-        {!address ? (
-          <Button onClick={connectWallet}>
-            Connect Wallet
-          </Button>
-        ) : (
-          <div className="flex flex-col gap-3">
-            <span>
-              Connected Wallet: {address}
-            </span>
-            <span>
-              Balance: {ethBalance} ETH
-            </span>
-            <span>
-              Token Balance: {tokenBalance} ARDT
-            </span>
-            <span>
-              Mint Price: {mintPrice} ETH
-            </span>
-            <Button onClick={mintToken}>
-              Mint Token
-            </Button>
-          </div>
-        )}
+        <WalletProvidersDialog
+          open={providersDialogOpen}
+          setOpen={setProvidersDialogOpen}
+        />
+        <Button onClick={() => setProvidersDialogOpen(true)}>
+          Connect Wallet
+        </Button>
       </main>
     </div>
   );
