@@ -1,6 +1,6 @@
 'use client'
 
-import { createContext, Dispatch, SetStateAction, useCallback, useContext, useEffect, useMemo, useState } from "react"
+import { createContext, Dispatch, SetStateAction, useContext, useEffect, useMemo, useState } from "react"
 import { EIP6963EventNames, LOCAL_STORAGE_KEYS, SupportedChainId, isPreviouslyConnectedProvider, isSupportedChain, switchChain, } from "@/config";
 import { BrowserProvider, ethers } from "ethers";
 
@@ -27,8 +27,6 @@ export function useWallet() {
 }
 
 export function WalletProvider({ children }: { children?: React.ReactNode }) {
-  const [address, setAddress] = useState("");
-
   /**
      * @title injectedProviders
      * @dev State variable to store injected providers we have recieved from the extension as a map.
