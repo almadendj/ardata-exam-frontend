@@ -1,30 +1,33 @@
-import { Dispatch, SetStateAction, useState } from "react"
+import { Dispatch, SetStateAction, useState, useCallback } from "react"
 import { useSyncProviders } from "../hooks/useSyncProviders"
-import { formatAddress } from "@/utils/crypto";
 import { Dialog, DialogHeader, DialogContent, DialogDescription, DialogTitle } from "./ui/dialog";
+import { Button } from "./ui/button";
+import Image from "next/image";
+import { useWallet } from "@/hooks/useWallet";
 
 type DialogProps = {
   open: boolean;
-  setOpen: Dispatch<SetStateAction<boolean>>
+  setOpen: Dispatch<SetStateAction<boolean>>;
 }
 
 export const WalletProvidersDialog = ({ open, setOpen }: DialogProps) => {
-  const [selectedWallet, setSelectedWallet] = useState<EIP6963ProviderDetail>()
-  const [userAccount, setUserAccount] = useState<string>("")
+  const { setSelectedWallet, setAddress } = useWallet();
   const providers = useSyncProviders()
 
-  const handleConnect = async (providerWithInfo: EIP6963ProviderDetail) => {
+  const handleConnect = useCallback(async (providerWithInfo: EIP6963ProviderDetail) => {
     try {
       const accounts: any = await providerWithInfo.provider.request({
         method: "eth_requestAccounts"
       })
 
       setSelectedWallet(providerWithInfo)
-      setUserAccount(accounts?.[0])
+      setAddress(accounts?.[0])
     } catch (error) {
       console.error(error)
+    } finally {
+      setOpen(false);
     }
-  }
+  }, [setSelectedWallet, setOpen, setAddress]);
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
@@ -40,27 +43,18 @@ export const WalletProvidersDialog = ({ open, setOpen }: DialogProps) => {
         <div>
           {
             providers.length > 0 ? providers?.map((provider: EIP6963ProviderDetail) => (
-              <button key={provider.info.uuid} onClick={() => handleConnect(provider)} >
-                <img src={provider.info.icon} alt={provider.info.name} />
-                <div>{provider.info.name}</div>
-              </button>
+              <Button className="w-full space-x-3 py-6" key={provider.info.uuid} onClick={() => handleConnect(provider)} >
+                <div className="w-[30px] h-[30px] relative">
+                  <Image src={provider.info.icon} alt={provider.info.name} fill />
+                </div>
+                <span>{provider.info.name}</span>
+              </Button>
             )) :
-              <div>
-                No Announced Wallet Providers
-              </div>
+              <span className="font-bold">
+                No Announced Wallet Providers. Please install MetaMask
+              </span>
           }
         </div>
-        <hr />
-        <h2>{userAccount ? "" : "No "}Wallet Selected</h2>
-        {userAccount &&
-          <div>
-            <div>
-              <img src={selectedWallet?.info.icon} alt={selectedWallet?.info.name} />
-              <div>{selectedWallet?.info.name}</div>
-              <div>({formatAddress(userAccount)})</div>
-            </div>
-          </div>
-        }
       </DialogContent>
     </Dialog>
   )

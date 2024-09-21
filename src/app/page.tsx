@@ -8,7 +8,7 @@ import { BrowserProvider, ethers } from "ethers";
 import { useCallback, useEffect, useState } from "react";
 
 export default function Home() {
-  const { address, setAddress } = useWallet();
+  const { address, setAddress, isConnected } = useWallet();
   const [provider, setProvider] = useState<BrowserProvider | null>(null);
   const [mintPrice, setMintPrice] = useState<string | null>(null);
   const [providersDialogOpen, setProvidersDialogOpen] = useState(false);
@@ -18,7 +18,6 @@ export default function Home() {
   useEffect(() => {
     const initProvider = async () => {
       if (typeof window.ethereum !== 'undefined') {
-        console.log("providers: ", window.ethereum.isMetamask);
         const browserProvider = new ethers.BrowserProvider(window.ethereum as any);
         setProvider(browserProvider);
 
@@ -79,14 +78,21 @@ export default function Home() {
   return (
     <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
       <main className="flex flex-col gap-8 row-start-2 items-center">
-        <WalletProvidersDialog
-          open={providersDialogOpen}
-          setOpen={setProvidersDialogOpen}
-        />
+        {isConnected && (
+          <span>
+            Wallet Connected
+          </span>
+        )}
+
         <Button onClick={() => setProvidersDialogOpen(true)}>
           Connect Wallet
         </Button>
       </main>
+
+      <WalletProvidersDialog
+        open={providersDialogOpen}
+        setOpen={setProvidersDialogOpen}
+      />
     </div>
   );
 }
