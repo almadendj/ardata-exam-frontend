@@ -2,18 +2,6 @@
 @tailwind components;
 @tailwind utilities;
 
-/*:root {*/
-/*  --background: #ffffff;*/
-/*  --foreground: #171717;*/
-/*}*/
-/**/
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: 0 0% 4%;
-    --foreground: 0 0% 93%;
-  }
-}
-
 body {
   color: hsl(--foreground);
   background: hsl(--background);
@@ -28,6 +16,8 @@ body {
 
 @layer base {
   :root {
+  --background: 0 0% 100%;
+  --foreground: 0 0% 9%;
     --card: 0 0% 100%;
     --card-foreground: 240 10% 3.9%;
     --popover: 0 0% 100%;
@@ -54,7 +44,7 @@ body {
   }
   .dark {
     --background: 0 0% 4%;
-    --foreground: 0 0% 98%;
+    --foreground: 0 0% 93%;
     --card: 240 10% 3.9%;
     --card-foreground: 0 0% 98%;
     --popover: 240 10% 3.9%;
