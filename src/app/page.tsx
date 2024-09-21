@@ -2,6 +2,7 @@
 
 import { WalletProvidersDialog } from "@/components/WalletProvidersDialog";
 import { Button } from "@/components/ui/button";
+import { useBalances } from "@/hooks/useBalances";
 import { useWallet } from "@/hooks/useWallet";
 import { contractABI, contractAddress } from "@/lib/contractInfo";
 import { BrowserProvider, ethers } from "ethers";
@@ -9,6 +10,7 @@ import { useCallback, useEffect, useState } from "react";
 
 export default function Home() {
   const { address, isConnected, connectedProvider, ethersProvider } = useWallet();
+  const { updateBalances } = useBalances();
   const [mintPrice, setMintPrice] = useState<string | null>(null);
   const [providersDialogOpen, setProvidersDialogOpen] = useState(false);
   const [ethBalance, setEthBalance] = useState<string | null>(null);
@@ -32,17 +34,6 @@ export default function Home() {
 
     initProvider();
   }, [connectedProvider]);
-
-  const updateBalances = useCallback(async (address: string) => {
-    if (!!ethersProvider) {
-      const ethBalance = await ethersProvider.getBalance(address);
-      setEthBalance(ethers.formatEther(ethBalance));
-
-      const contract = new ethers.Contract(contractAddress, contractABI, ethersProvider);
-      const tokenBalance = await contract.balanceOf(address);
-      setTokenBalance(ethers.formatEther(tokenBalance));
-    }
-  }, [ethersProvider]);
 
   const mintToken = useCallback(async () => {
     if (ethersProvider && address && mintPrice) {
