@@ -1,12 +1,14 @@
 'use client'
 
+import { DiscoverWalletProviders } from "@/components/DiscoverWalletProviders";
 import { Button } from "@/components/ui/button";
+import { useWallet } from "@/hooks/useWallet";
 import { contractABI, contractAddress } from "@/lib/contractInfo";
 import { BrowserProvider, ethers } from "ethers";
 import { useCallback, useEffect, useState } from "react";
 
 export default function Home() {
-  const [wallet, setWallet] = useState<string | null>(null);
+  const { address, setAddress } = useWallet();
   const [provider, setProvider] = useState<BrowserProvider | null>(null);
   const [mintPrice, setMintPrice] = useState<string | null>(null);
   const [ethBalance, setEthBalance] = useState<string | null>(null);
@@ -15,6 +17,7 @@ export default function Home() {
   useEffect(() => {
     const initProvider = async () => {
       if (typeof window.ethereum !== 'undefined') {
+        console.log("providers: ", window.ethereum.isMetamask);
         const browserProvider = new ethers.BrowserProvider(window.ethereum as any);
         setProvider(browserProvider);
 
@@ -31,19 +34,6 @@ export default function Home() {
     initProvider();
   }, []);
 
-  const connectWallet = useCallback(async () => {
-    if (provider) {
-      try {
-        const accounts = await provider.send('eth_requestAccounts', []);
-        setWallet(accounts[0]);
-
-        updateBalances(accounts[0]);
-      } catch (e) {
-        console.error("Failed to connect to wallet: ", e);
-      }
-    }
-  }, [provider]);
-
   const updateBalances = useCallback(async (address: string) => {
     if (!!provider) {
       const ethBalance = await provider.getBalance(address);
@@ -55,8 +45,22 @@ export default function Home() {
     }
   }, [provider]);
 
+  const connectWallet = useCallback(async () => {
+    if (provider) {
+      try {
+        const accounts = await provider.send('eth_requestAccounts', []);
+        console.log("accounts: ", accounts);
+        setAddress(accounts[0]);
+
+        updateBalances(accounts[0]);
+      } catch (e) {
+        console.error("Failed to connect to wallet: ", e);
+      }
+    }
+  }, [provider, setAddress, updateBalances]);
+
   const mintToken = useCallback(async () => {
-    if (provider && wallet && mintPrice) {
+    if (provider && address && mintPrice) {
       try {
         const signer = await provider.getSigner();
         const contract = new ethers.Contract(contractAddress, contractABI, signer);
@@ -64,24 +68,25 @@ export default function Home() {
         await tx.wait();
 
         console.log("Token minted successfully!");
-        updateBalances(wallet);
+        updateBalances(address);
       } catch (e) {
         console.error("Failed to mint token: ", e);
       }
     }
-  }, [provider, wallet, mintPrice]);
+  }, [provider, address, mintPrice]);
 
   return (
     <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
       <main className="flex flex-col gap-8 row-start-2 items-center">
-        {!wallet ? (
+        <DiscoverWalletProviders />
+        {!address ? (
           <Button onClick={connectWallet}>
             Connect Wallet
           </Button>
         ) : (
           <div className="flex flex-col gap-3">
             <span>
-              Connected Wallet: {wallet}
+              Connected Wallet: {address}
             </span>
             <span>
               Balance: {ethBalance} ETH

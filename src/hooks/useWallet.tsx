@@ -5,13 +5,11 @@ import { createContext, Dispatch, SetStateAction, useContext, useState } from "r
 type WalletProps = {
   address?: string;
   isConnected: boolean;
-  setAddress?: Dispatch<SetStateAction<string>>;
-  setIsConnected?: Dispatch<SetStateAction<boolean>>;
+  setAddress: Dispatch<SetStateAction<string>>;
+  setIsConnected: Dispatch<SetStateAction<boolean>>;
 }
 
-const WalletContext = createContext<WalletProps>({
-  isConnected: false
-});
+const WalletContext = createContext<WalletProps | null>(null);
 
 export function useWallet() {
   const context = useContext(WalletContext);
