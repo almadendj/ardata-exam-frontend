@@ -76,7 +76,7 @@ export function WalletProvider({ children }: { children?: React.ReactNode }) {
     // Add event listener for EIP-6963 announce provider event
     window.addEventListener(
       EIP6963EventNames.Announce,
-      onAnnounceProvider);
+      onAnnounceProvider as any);
 
     // Dispatch the request for EIP-6963 provider
     window.dispatchEvent(new Event(EIP6963EventNames.Request));
@@ -85,7 +85,7 @@ export function WalletProvider({ children }: { children?: React.ReactNode }) {
     return () => {
       window.removeEventListener(
         EIP6963EventNames.Announce,
-        onAnnounceProvider);
+        onAnnounceProvider as any);
       setInjectedProviders(new Map());
     };
   }, []);
