@@ -1,17 +1,19 @@
 'use client'
 
-import { createContext, Dispatch, SetStateAction, useCallback, useContext, useEffect, useState } from "react"
+import { createContext, Dispatch, SetStateAction, useCallback, useContext, useEffect, useMemo, useState } from "react"
 import { EIP6963EventNames, LOCAL_STORAGE_KEYS, SupportedChainId, isPreviouslyConnectedProvider, isSupportedChain, switchChain, } from "@/config";
+import { BrowserProvider, ethers } from "ethers";
 
 type WalletProps = {
   address?: string;
   isConnected: boolean;
-  setAddress: Dispatch<SetStateAction<string>>;
-  selectedWallet?: EIP6963ProviderDetail;
-  setSelectedWallet: Dispatch<SetStateAction<EIP6963ProviderDetail | undefined>>;
+  disconnect: () => void;
+  switchChain: () => Promise<void>;
+  connectedProvider?: EIP6963ProviderDetail;
   injectedProviders: Map<string, EIP6963ProviderDetail>;
   setInjectedProviders: Dispatch<SetStateAction<Map<string, EIP6963ProviderDetail>>>;
   handleConnectProvider: (arg0: EIP6963ProviderDetail) => Promise<void>;
+  ethersProvider?: BrowserProvider;
 }
 
 const WalletContext = createContext<WalletProps | null>(null);
@@ -26,7 +28,6 @@ export function useWallet() {
 
 export function WalletProvider({ children }: { children?: React.ReactNode }) {
   const [address, setAddress] = useState("");
-  const [selectedWallet, setSelectedWallet] = useState<EIP6963ProviderDetail>();
 
   /**
      * @title injectedProviders
@@ -155,17 +156,24 @@ export function WalletProvider({ children }: { children?: React.ReactNode }) {
   };
 
   const connectedInjectedProvider =
-    connection && injectedProviders.get(connection.providerUUID);
+    connection ? injectedProviders.get(connection.providerUUID) : undefined;
+
+  const ethersProvider = useMemo(() => {
+    if (!!connectedInjectedProvider) {
+      return new ethers.BrowserProvider(connectedInjectedProvider.provider)
+    }
+  }, [connectedInjectedProvider]);
 
   return <WalletContext.Provider value={{
-    address,
+    address: connection?.accounts.at(0),
     isConnected: !!connection,
-    setAddress,
-    selectedWallet,
-    setSelectedWallet,
+    connectedProvider: connectedInjectedProvider,
     injectedProviders,
+    disconnect: handleDisconnect,
     setInjectedProviders,
-    handleConnectProvider
+    handleConnectProvider,
+    switchChain: handleSwitchChain,
+    ethersProvider
   }}>
     {children}
   </WalletContext.Provider>

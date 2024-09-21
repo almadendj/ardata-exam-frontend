@@ -8,8 +8,7 @@ import { BrowserProvider, ethers } from "ethers";
 import { useCallback, useEffect, useState } from "react";
 
 export default function Home() {
-  const { address, setAddress, isConnected } = useWallet();
-  const [provider, setProvider] = useState<BrowserProvider | null>(null);
+  const { address, isConnected, connectedProvider, ethersProvider } = useWallet();
   const [mintPrice, setMintPrice] = useState<string | null>(null);
   const [providersDialogOpen, setProvidersDialogOpen] = useState(false);
   const [ethBalance, setEthBalance] = useState<string | null>(null);
@@ -17,13 +16,13 @@ export default function Home() {
 
   useEffect(() => {
     const initProvider = async () => {
-      if (typeof window.ethereum !== 'undefined') {
-        const browserProvider = new ethers.BrowserProvider(window.ethereum as any);
-        setProvider(browserProvider);
+      if (!!connectedProvider) {
+        const browserProvider = new ethers.BrowserProvider(connectedProvider.provider);
 
         try {
           const contract = new ethers.Contract(contractAddress, contractABI, browserProvider);
           const price = await contract.MINT_PRICE();
+          console.log("mint price: ", ethers.formatEther(price));
           setMintPrice(ethers.formatEther(price));
         } catch (e) {
           console.log("Failed to get mint price: ", e);
@@ -32,37 +31,23 @@ export default function Home() {
     }
 
     initProvider();
-  }, []);
+  }, [connectedProvider]);
 
   const updateBalances = useCallback(async (address: string) => {
-    if (!!provider) {
-      const ethBalance = await provider.getBalance(address);
+    if (!!ethersProvider) {
+      const ethBalance = await ethersProvider.getBalance(address);
       setEthBalance(ethers.formatEther(ethBalance));
 
-      const contract = new ethers.Contract(contractAddress, contractABI, provider);
+      const contract = new ethers.Contract(contractAddress, contractABI, ethersProvider);
       const tokenBalance = await contract.balanceOf(address);
       setTokenBalance(ethers.formatEther(tokenBalance));
     }
-  }, [provider]);
-
-  const connectWallet = useCallback(async () => {
-    if (provider) {
-      try {
-        const accounts = await provider.send('eth_requestAccounts', []);
-        console.log("accounts: ", accounts);
-        setAddress(accounts[0]);
-
-        updateBalances(accounts[0]);
-      } catch (e) {
-        console.error("Failed to connect to wallet: ", e);
-      }
-    }
-  }, [provider, setAddress, updateBalances]);
+  }, [ethersProvider]);
 
   const mintToken = useCallback(async () => {
-    if (provider && address && mintPrice) {
+    if (ethersProvider && address && mintPrice) {
       try {
-        const signer = await provider.getSigner();
+        const signer = await ethersProvider.getSigner();
         const contract = new ethers.Contract(contractAddress, contractABI, signer);
         const tx = await contract.mint({ value: ethers.parseEther(mintPrice) });
         await tx.wait();
@@ -73,7 +58,7 @@ export default function Home() {
         console.error("Failed to mint token: ", e);
       }
     }
-  }, [provider, address, mintPrice]);
+  }, [ethersProvider, address, mintPrice]);
 
 
   return (

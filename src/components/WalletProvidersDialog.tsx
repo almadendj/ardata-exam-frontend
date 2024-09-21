@@ -1,5 +1,4 @@
-import { Dispatch, SetStateAction, useState, useCallback } from "react"
-import { useSyncProviders } from "../hooks/useSyncProviders"
+import { Dispatch, SetStateAction, } from "react"
 import { Dialog, DialogHeader, DialogContent, DialogDescription, DialogTitle } from "./ui/dialog";
 import { Button } from "./ui/button";
 import Image from "next/image";
@@ -11,22 +10,7 @@ type DialogProps = {
 }
 
 export const WalletProvidersDialog = ({ open, setOpen }: DialogProps) => {
-  const { setSelectedWallet, setAddress, injectedProviders, handleConnectProvider } = useWallet();
-
-  const handleConnect = useCallback(async (providerWithInfo: EIP6963ProviderDetail) => {
-    try {
-      const accounts: any = await providerWithInfo.provider.request({
-        method: "eth_requestAccounts"
-      })
-
-      setSelectedWallet(providerWithInfo)
-      setAddress(accounts?.[0])
-    } catch (error) {
-      console.error(error)
-    } finally {
-      setOpen(false);
-    }
-  }, [setSelectedWallet, setOpen, setAddress]);
+  const { injectedProviders, handleConnectProvider } = useWallet();
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
