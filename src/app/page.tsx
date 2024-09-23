@@ -1,4 +1,5 @@
 import MintTokenCard from "@/components/MintTokenCard";
+import TokensCard from "@/components/TokensCard";
 import WalletDetailsCard from "@/components/WalletDetailsCard";
 
 export default function Home() {
@@ -8,6 +9,7 @@ export default function Home() {
       <main className="flex flex-col row-start-2 items-center w-full gap-3">
         <WalletDetailsCard />
         <MintTokenCard />
+        <TokensCard />
       </main>
     </div>
   );
