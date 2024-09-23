@@ -10,11 +10,11 @@ export default function TokensTable() {
   return (
     <Table className="w-full">
       <TableCaption>
-        {isConnected ? (
-          "A list of all your owned NFT's"
-        ) : (
-          "Please connect your wallet"
-        )}
+        {tokensLoading
+          ? "Loading.."
+          : isConnected
+            ? "A list of all your owned NFT's"
+            : "Please connect your wallet"}
       </TableCaption>
       <TableHeader>
         <TableRow>
