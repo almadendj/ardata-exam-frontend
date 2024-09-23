@@ -312,6 +312,19 @@ export const contractABI = [
     "type": "function"
   },
   {
+    "inputs": [],
+    "name": "getMintPrice",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
     "inputs": [
       {
         "internalType": "uint256",

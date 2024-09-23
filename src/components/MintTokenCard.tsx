@@ -3,12 +3,15 @@ import { Input } from "./ui/input";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "./ui/card";
 import { Button } from "./ui/button";
 import { SubmitHandler, useForm } from "react-hook-form";
+import { useContract } from "@/hooks/useContract";
 
 type Inputs = {
   tokenName: string;
 }
 
 export default function MintTokenCard() {
+  const { mintPrice } = useContract();
+
   const {
     register,
     handleSubmit,
@@ -35,7 +38,7 @@ export default function MintTokenCard() {
           />
         </CardHeader>
         <CardContent>
-          <Button className="w-full">Mint Token</Button>
+          <Button className="w-full">Mint Token: {mintPrice}</Button>
         </CardContent>
       </form>
     </Card>

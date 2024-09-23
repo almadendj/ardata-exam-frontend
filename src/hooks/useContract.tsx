@@ -30,15 +30,22 @@ export function ContractProvider({ children }: { children?: React.ReactNode }) {
     const getContract = async () => {
       try {
         const signer = await ethersProvider?.getSigner();
+        if (!signer) return;
+
         const loadedContract = new ethers.Contract(contractAddress, contractABI, signer);
+        const mintPrice = await loadedContract.mintPrice();
+
+        setMintPrice(ethers.formatEther(mintPrice));
         setContract(loadedContract);
       } catch (error) {
+        console.error("Error in contract interaction:", error);
         setContract(undefined);
+        setMintPrice("");
       }
     };
 
     getContract();
-  }, [contractAddress, contractABI, ethersProvider]);
+  }, [contractAddress, contractABI, ethersProvider, setMintPrice]);
 
   const mintToken = useCallback(async () => {
     if (ethersProvider && address && mintPrice) {
@@ -54,6 +61,20 @@ export function ContractProvider({ children }: { children?: React.ReactNode }) {
     }
   }, [ethersProvider, address, mintPrice, contract]);
 
+  const getOwnedTokens = useCallback(async () => {
+    if (!contract) return;
+    try {
+      const tokensResult = await contract?.tokensOfOwner(address);
+      const tokens = tokensResult.map((token: any) => Number(token));
+      console.log("tokens: ", tokens);
+    } catch (e) {
+      console.error("Failed to get owned tokens: ", e);
+    }
+  }, [address, contract]);
+
+  useEffect(() => {
+    getOwnedTokens();
+  }, [getOwnedTokens])
 
   const returnValue: ContractProps = {
     mintToken,
