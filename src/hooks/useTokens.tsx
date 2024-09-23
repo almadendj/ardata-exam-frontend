@@ -1,6 +1,7 @@
 'use client'
 
-import { createContext, useCallback, useContext, useEffect, useState } from "react"
+import { createContext, useContext } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { useContract } from "./useContract";
 import { useWallet } from "./useWallet";
 import { useBalances } from "./useBalances";
@@ -11,9 +12,9 @@ type TokenDetails = {
 }
 
 type TokensProps = {
-  tokenIds: number[];
+  tokenIds?: number[];
+  tokens?: TokenDetails[];
   tokenIdsLoading: boolean;
-  tokens: TokenDetails[]
   tokensLoading: boolean;
 }
 
@@ -31,41 +32,36 @@ export function TokensProvider({ children }: { children?: React.ReactNode }) {
   const { address } = useWallet();
   const { tokenBalance } = useBalances();
   const { contract } = useContract();
-  const [tokenIds, setTokenIds] = useState<number[]>([]);
-  const [tokens, setTokens] = useState<TokenDetails[]>([]);
-  const [tokenIdsLoading, setTokenIdsLoading] = useState(false);
-  const [tokensLoading, setTokensLoading] = useState(false);
 
-  const getOwnedTokens = useCallback(async () => {
-    if (!contract) return;
-    setTokenIdsLoading(true);
-    setTokensLoading(true);
+  const fetchOwnedTokens = async () => {
+    if (!contract || !address) return [];
 
-    try {
-      const tokensResult = await contract?.tokensOfOwner(address);
-      const tokensResultIds: number[] = tokensResult.map((token: any) => Number(token));
-      setTokenIds(tokensResultIds);
-      setTokenIdsLoading(false);
+    const tokensResult = await contract.tokensOfOwner(address);
+    return tokensResult.map((token: any) => Number(token));
+  };
 
-      const tokenDetailsPromises = tokensResultIds.map(async (tokenId): Promise<TokenDetails> => {
-        const tokenName = await contract.getTokenName(tokenId);
-        return { id: String(tokenId), name: tokenName }
-      })
+  const fetchTokenDetails = async (tokenIds: number[]) => {
+    if (!contract) return [];
 
-      const tokenDetails = await Promise.all(tokenDetailsPromises);
-      setTokensLoading(false);
-      setTokens(tokenDetails);
-    } catch (e) {
-      console.error("Failed to get owned tokens: ", e);
-    } finally {
-      setTokensLoading(false);
-      setTokenIdsLoading(false);
-    }
-  }, [address, contract]);
+    const tokenDetailsPromises = tokenIds.map(async (tokenId) => {
+      const tokenName = await contract.getTokenName(tokenId);
+      return { id: String(tokenId), name: tokenName };
+    });
 
-  useEffect(() => {
-    getOwnedTokens();
-  }, [tokenBalance, getOwnedTokens, address, contract]); // update tokens then tokenBalance is updated
+    return Promise.all(tokenDetailsPromises);
+  };
+
+  const { data: tokenIds = [], isLoading: tokenIdsLoading } = useQuery<number[]>({
+    queryKey: ['tokenIds', address, tokenBalance],
+    queryFn: fetchOwnedTokens,
+    enabled: !!address && !!contract
+  });
+
+  const { data: tokens = [], isLoading: tokensLoading } = useQuery<TokenDetails[]>({
+    queryKey: ['tokens', tokenIds],
+    queryFn: () => fetchTokenDetails(tokenIds!),
+    enabled: tokenIds.length > 0 && !!contract
+  })
 
   const tokensValue: TokensProps = {
     tokenIds,
@@ -80,3 +76,4 @@ export function TokensProvider({ children }: { children?: React.ReactNode }) {
     </TokensContext.Provider>
   );
 }
+
