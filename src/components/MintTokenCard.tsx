@@ -5,6 +5,7 @@ import { Button } from "./ui/button";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { useContract } from "@/hooks/useContract";
 import { useWallet } from "@/hooks/useWallet";
+import { useState } from "react";
 
 type Inputs = {
   tokenName: string;
@@ -13,6 +14,7 @@ type Inputs = {
 export default function MintTokenCard() {
   const { mintPrice, mintToken } = useContract();
   const { isConnected } = useWallet();
+  const [loading, setLoading] = useState(false);
 
   const {
     register,
@@ -23,7 +25,13 @@ export default function MintTokenCard() {
   const onSubmit: SubmitHandler<Inputs> = (data) => {
     if (!isConnected) return; // just to make sure
 
-    mintToken(data.tokenName);
+    setLoading(true);
+
+    mintToken(data.tokenName)
+      .then(() => { })
+      .finally(() => {
+        setLoading(false);
+      })
   };
 
   return (
