@@ -44,11 +44,12 @@ export default function WalletDetailsCard() {
           )}
         </CardHeader>
         <CardContent>
-          {!tokenIdsLoading && (
-            <span>
-              You currently own: {tokenIds.length} NFT's
-            </span>
-          )}
+          <span className="text-foreground/80">
+            You currently own:&nbsp;
+          </span>
+          <span className="font-bold">
+            {tokenIdsLoading ? "Loading" : `${tokenIds.length} NFT's`}
+          </span>
         </CardContent>
       </Card>
       <WalletProvidersDialog
