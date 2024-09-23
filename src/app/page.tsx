@@ -9,7 +9,7 @@ import { Fragment, useState } from "react";
 
 export default function Home() {
   const { isConnected, disconnect, address } = useWallet();
-  const { tokenBalance, tokenBalanceLoading } = useBalances();
+  const { tokenBalance, tokenBalanceLoading, ethBalanceLoading, ethBalance } = useBalances();
   const [providersDialogOpen, setProvidersDialogOpen] = useState(false);
 
   return (
@@ -20,12 +20,12 @@ export default function Home() {
             <CardHeader className="flex-row justify-between items-start">
               <div className="flex flex-col gap-2">
                 <CardTitle>
-                  {tokenBalanceLoading ? (
+                  {ethBalanceLoading ? (
                     "Loading..."
                   ) : !isConnected ? (
                     "Connect your wallet"
                   ) : (
-                    `${tokenBalance} ARDT`
+                    `${ethBalance} ETH`
                   )}
                 </CardTitle>
                 <CardDescription>
