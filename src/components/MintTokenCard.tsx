@@ -11,7 +11,7 @@ type Inputs = {
 }
 
 export default function MintTokenCard() {
-  const { mintPrice } = useContract();
+  const { mintPrice, mintToken } = useContract();
   const { isConnected } = useWallet();
 
   const {
@@ -22,7 +22,8 @@ export default function MintTokenCard() {
 
   const onSubmit: SubmitHandler<Inputs> = (data) => {
     if (!isConnected) return; // just to make sure
-    console.log(data)
+
+    mintToken(data.tokenName);
   };
 
   return (

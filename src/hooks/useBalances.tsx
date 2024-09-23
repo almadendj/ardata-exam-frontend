@@ -44,24 +44,29 @@ export function BalancesProvider({ children }: { children?: React.ReactNode }) {
     }
   }, [ethersProvider, setEthBalance]);
 
-  const updateTokenbalance = useCallback(async (address: string) => {
+  const updateTokenBalance = useCallback(async (address: string) => {
     try {
       setTokenLoading(true);
       const contract = new ethers.Contract(contractAddress, contractABI, ethersProvider);
+
+      // Fetch the token balance for the given address
       const tokenBalance = await contract.balanceOf(address);
-      setTokenBalance(ethers.formatEther(tokenBalance));
+
+      // Convert the balance from BigNumber to a human-readable format (Ether)
+      const formattedBalance = ethers.formatUnits(tokenBalance, 0); // 0 decimals for ERC721
+      setTokenBalance(formattedBalance);
     } catch (e) {
       // TODO: add better error handling
-      console.error(e);
+      console.error("Error fetching token balance:", e);
     } finally {
       setTokenLoading(false);
     }
-  }, [ethers, ethersProvider, contractAddress, contractABI]);
+  }, [ethersProvider, contractAddress, contractABI]);
 
   const updateBalances = useCallback((address: string) => {
     updateEthBalance(address);
 
-    updateTokenbalance(address);
+    updateTokenBalance(address);
   }, [ethersProvider]);
 
   // fetch balances when page loads
