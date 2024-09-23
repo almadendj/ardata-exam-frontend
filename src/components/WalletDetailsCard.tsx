@@ -14,7 +14,7 @@ export default function WalletDetailsCard() {
   return (
     <Fragment>
       <Card className="w-full">
-        <CardHeader className="flex-row justify-between items-start">
+        <CardHeader className="flex-col md:flex-row justify-between items-start">
           <div className="flex flex-col gap-2">
             <CardTitle>
               {ethBalanceLoading ? (
@@ -22,7 +22,7 @@ export default function WalletDetailsCard() {
               ) : !isConnected ? (
                 "Connect your wallet"
               ) : (
-                `${ethBalance} ETH`
+                `${Number(ethBalance).toFixed(8)} ETH`
               )}
             </CardTitle>
             <CardDescription>
@@ -32,7 +32,7 @@ export default function WalletDetailsCard() {
             </CardDescription>
           </div>
           {isConnected ? (
-            <Button variant={"destructive"} onClick={() => disconnect()}>
+            <Button className="w-full md:w-max" variant={"destructive"} onClick={() => disconnect()}>
               Disconnect
             </Button>
           ) : (
