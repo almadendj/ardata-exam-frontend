@@ -4,6 +4,7 @@ import { Toaster } from "@/components/ui/toaster"
 import { BalancesProvider } from "@/hooks/useBalances"
 import { ContractProvider } from "@/hooks/useContract"
 import { ThemeProvider } from "@/hooks/useTheme"
+import { TokensProvider } from "@/hooks/useTokens"
 import { WalletProvider } from "@/hooks/useWallet"
 
 export default function Providers({ children }: { children?: React.ReactNode }) {
@@ -12,8 +13,10 @@ export default function Providers({ children }: { children?: React.ReactNode }) 
       <WalletProvider>
         <BalancesProvider>
           <ContractProvider>
-            {children}
-            <Toaster />
+            <TokensProvider>
+              {children}
+              <Toaster />
+            </TokensProvider>
           </ContractProvider>
         </BalancesProvider>
       </WalletProvider>

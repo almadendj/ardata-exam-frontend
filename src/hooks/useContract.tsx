@@ -36,12 +36,11 @@ export function ContractProvider({ children }: { children?: React.ReactNode }) {
         const loadedContract = new ethers.Contract(contractAddress, contractABI, signer);
         const mintPrice = await loadedContract.mintPrice();
 
+        setContract(loadedContract);
         setMintPrice(ethers.formatEther(mintPrice));
         setWeiMintPrice(Number(mintPrice));
-        setContract(loadedContract);
       } catch (error) {
         console.error("Error in contract interaction:", error);
-        setContract(undefined);
         setMintPrice("");
       }
     };
@@ -59,36 +58,10 @@ export function ContractProvider({ children }: { children?: React.ReactNode }) {
     updateBalances(address);
   }, [address, weiMintPrice, contract, ethersProvider]);
 
-  const getOwnedTokens = useCallback(async () => {
-    if (!contract) return;
-    try {
-      const tokensResult = await contract?.tokensOfOwner(address);
-      const tokens = tokensResult.map((token: any) => Number(token));
-      console.log("tokens: ", tokens);
-    } catch (e) {
-      console.error("Failed to get owned tokens: ", e);
-    }
-  }, [address, contract]);
-
-  const getTokenDetails = useCallback(async () => {
-    if (!contract) return;
-
-    try {
-      const token = await contract.getTokenName(2);
-      console.log("token: ", token);
-    } catch (e) {
-      console.error("Failed to get token details: ", e);
-    }
-  }, [!contract]);
-
-  useEffect(() => {
-    getOwnedTokens();
-    getTokenDetails();
-  }, [getOwnedTokens, getTokenDetails])
-
   const returnValue: ContractProps = {
     mintToken,
-    mintPrice
+    mintPrice,
+    contract
   }
 
   return <ContractContext.Provider value={returnValue}>

@@ -5,10 +5,12 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "./ui/
 import { useBalances } from "@/hooks/useBalances";
 import { Fragment, useState } from "react";
 import { WalletProvidersDialog } from "./WalletProvidersDialog";
+import { useTokens } from "@/hooks/useTokens";
 
 export default function WalletDetailsCard() {
   const { isConnected, disconnect, address } = useWallet();
-  const { ethBalanceLoading, ethBalance, tokenBalance, tokenBalanceLoading } = useBalances();
+  const { tokenIds, tokenIdsLoading } = useTokens();
+  const { ethBalanceLoading, ethBalance } = useBalances();
   const [providersDialogOpen, setProvidersDialogOpen] = useState(false);
 
   return (
@@ -42,9 +44,9 @@ export default function WalletDetailsCard() {
           )}
         </CardHeader>
         <CardContent>
-          {!tokenBalanceLoading && (
+          {!tokenIdsLoading && (
             <span>
-              You currently own: {tokenBalance} NFT's
+              You currently own: {tokenIds.length} NFT's
             </span>
           )}
         </CardContent>
