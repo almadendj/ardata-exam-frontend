@@ -1,5 +1,6 @@
 'use client'
 
+import { Toaster } from "@/components/ui/toaster"
 import { BalancesProvider } from "@/hooks/useBalances"
 import { ContractProvider } from "@/hooks/useContract"
 import { ThemeProvider } from "@/hooks/useTheme"
@@ -12,6 +13,7 @@ export default function Providers({ children }: { children?: React.ReactNode }) 
         <BalancesProvider>
           <ContractProvider>
             {children}
+            <Toaster />
           </ContractProvider>
         </BalancesProvider>
       </WalletProvider>

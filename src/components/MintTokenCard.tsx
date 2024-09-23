@@ -6,6 +6,7 @@ import { SubmitHandler, useForm } from "react-hook-form";
 import { useContract } from "@/hooks/useContract";
 import { useWallet } from "@/hooks/useWallet";
 import { useState } from "react";
+import { useToast } from "@/hooks/use-toast";
 
 type Inputs = {
   tokenName: string;
@@ -14,6 +15,7 @@ type Inputs = {
 export default function MintTokenCard() {
   const { mintPrice, mintToken } = useContract();
   const { isConnected } = useWallet();
+  const { toast } = useToast();
   const [loading, setLoading] = useState(false);
 
   const {
@@ -28,7 +30,19 @@ export default function MintTokenCard() {
     setLoading(true);
 
     mintToken(data.tokenName)
-      .then(() => { })
+      .then(() => {
+        toast({
+          title: "Minted Successfully!",
+          description: "Token ID:"
+        })
+      })
+      .catch((e) => {
+        toast({
+          title: "Minting Failed",
+          description: "Something went wrong"
+        });
+        console.error(e);
+      })
       .finally(() => {
         setLoading(false);
       })
@@ -53,7 +67,7 @@ export default function MintTokenCard() {
           </div>
         </CardHeader>
         <CardContent>
-          <Button disabled={!isConnected} className="w-full">
+          <Button isLoading={loading} disabled={!isConnected} className="w-full">
             {!isConnected ? (
               "Please connect your wallet"
             ) : (

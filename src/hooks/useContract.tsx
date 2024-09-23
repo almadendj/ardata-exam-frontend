@@ -50,19 +50,13 @@ export function ContractProvider({ children }: { children?: React.ReactNode }) {
   }, [contractAddress, contractABI, ethersProvider, setMintPrice]);
 
   const mintToken = useCallback(async (tokenName: string) => {
-    // TODO: better error handling
     if (!contract || !address || !weiMintPrice || !ethersProvider) return;
 
-    try {
-      const nonce = await ethersProvider.getTransactionCount(address);
-      const tx = await contract.mintToken(tokenName, { value: weiMintPrice, nonce: nonce });
-      await tx.wait();
+    const nonce = await ethersProvider.getTransactionCount(address);
+    const tx = await contract.mintToken(tokenName, { value: weiMintPrice, nonce: nonce });
+    await tx.wait();
 
-      console.log("Token minted successfully!");
-      updateBalances(address);
-    } catch (e) {
-      console.error("Failed to mint token: ", e);
-    }
+    updateBalances(address);
   }, [address, weiMintPrice, contract, ethersProvider]);
 
   const getOwnedTokens = useCallback(async () => {
@@ -80,7 +74,7 @@ export function ContractProvider({ children }: { children?: React.ReactNode }) {
     if (!contract) return;
 
     try {
-      const token = await contract.getTokenName(0);
+      const token = await contract.getTokenName(2);
       console.log("token: ", token);
     } catch (e) {
       console.error("Failed to get token details: ", e);
