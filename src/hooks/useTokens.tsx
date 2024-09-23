@@ -12,8 +12,8 @@ type TokenDetails = {
 }
 
 type TokensProps = {
-  tokenIds?: number[];
-  tokens?: TokenDetails[];
+  tokenIds: number[];
+  tokens: TokenDetails[];
   tokenIdsLoading: boolean;
   tokensLoading: boolean;
 }
