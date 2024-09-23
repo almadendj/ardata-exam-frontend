@@ -6,20 +6,26 @@ import { ContractProvider } from "@/hooks/useContract"
 import { ThemeProvider } from "@/hooks/useTheme"
 import { TokensProvider } from "@/hooks/useTokens"
 import { WalletProvider } from "@/hooks/useWallet"
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+
+
+const queryClient = new QueryClient();
 
 export default function Providers({ children }: { children?: React.ReactNode }) {
   return (
-    <ThemeProvider>
-      <WalletProvider>
-        <BalancesProvider>
-          <ContractProvider>
-            <TokensProvider>
-              {children}
-              <Toaster />
-            </TokensProvider>
-          </ContractProvider>
-        </BalancesProvider>
-      </WalletProvider>
-    </ThemeProvider>
+    <QueryClientProvider client={queryClient}>
+      <ThemeProvider>
+        <WalletProvider>
+          <BalancesProvider>
+            <ContractProvider>
+              <TokensProvider>
+                {children}
+                <Toaster />
+              </TokensProvider>
+            </ContractProvider>
+          </BalancesProvider>
+        </WalletProvider>
+      </ThemeProvider>
+    </QueryClientProvider>
   )
 }
