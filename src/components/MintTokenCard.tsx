@@ -33,13 +33,14 @@ export default function MintTokenCard() {
       .then(() => {
         toast({
           title: "Minted Successfully!",
-          description: "Token ID:"
+          description: "Your account will reflect changes shortly",
         })
       })
       .catch((e) => {
         toast({
           title: "Minting Failed",
-          description: "Something went wrong"
+          description: "Something went wrong",
+          variant: "destructive"
         });
         console.error(e);
       })
